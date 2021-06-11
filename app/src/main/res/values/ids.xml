@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="addMenu" type="id" />
+    <item name="judul_konten" type="id" />
+    <item name="tenggat_waktu_konten" type="id" />
+    <item name="tenggat_jam_konten" type="id" />
+    <item name="note_konten" type="id" />
 </resources>
