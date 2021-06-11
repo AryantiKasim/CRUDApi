@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">CRUDToDoList</string>
+    <string name="judul_note" />
+    <string name="tenggat_hari" />
+    <string name="deskripsi_note" />
+    <string name="tenggat_hari_belum_diset" />
+    <string name="tenggat_jam_belum_diset" />
+    <string name="simpan" />
+    <string name="add" />
 </resources>
