@@ -40,4 +40,4 @@ data class Note(
     @ColumnInfo(name = "selesai")
     var isFinished: Boolean? = null
 
-)  : Parcelable
+)

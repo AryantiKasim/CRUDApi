@@ -1,10 +1,15 @@
 <resources>
     <string name="app_name">CRUDToDoList</string>
-    <string name="judul_note" />
-    <string name="tenggat_hari" />
-    <string name="deskripsi_note" />
-    <string name="tenggat_hari_belum_diset" />
-    <string name="tenggat_jam_belum_diset" />
-    <string name="simpan" />
-    <string name="add" />
+    <string name="judul_note">Judul</string>
+    <string name="tenggat_hari">Tenggat Waktu</string>
+    <string name="deskripsi_note">Deskripsi Note</string>
+    <string name="tenggat_hari_belum_diset">Tenggat Hari Belum Diatur</string>
+    <string name="tenggat_jam_belum_diset">Tenggat Jam Belum Diatur</string>
+    <string name="simpan">Save</string>
+    <string name="add">Add</string>
+    <string name="selesai">Selesai</string>
+    <string name="update">Update</string>
+    <string name="batal">Batal</string>
+    <string name="add_note">Tambah Note</string>
+    <string name="update_note">Update Note</string>
 </resources>
