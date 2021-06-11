@@ -12,18 +12,23 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import id.ac.unhas.crudtodolist.R
 import id.ac.unhas.crudtodolist.db.note.Note
-import id.ac.unhas.crudtodolist.db.ui.main.NoteAdapter
-import id.ac.unhas.crudtodolist.db.ui.main.NoteViewModel
+import kotlinx.android.synthetic.main.item_details.view.*
 import kotlinx.android.synthetic.main.activity_main.*
+import android.content.Intent
+import android.widget.CheckBox
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var noteViewModel: NoteViewModel
     private lateinit var noteAdapter: NoteAdapter
+    private lateinit var floatingActionButton: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        floatingActionButton = findViewById(R.id.fab)
 
         noteRV.layoutManager = LinearLayoutManager(this)
         noteAdapter = NoteAdapter(this) { note, i ->
@@ -36,6 +41,10 @@ class MainActivity : AppCompatActivity() {
             noteAdapter.setNotes(it)
         })
 
+        floatingActionButton.setOnClickListener{
+            inputNote()
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -45,74 +54,158 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.addMenu -> showAlertDialogAdd()
+        when(item.itemId){
+            R.id.sort_list -> sortNote()
         }
 
         return super.onOptionsItemSelected(item)
     }
 
-    private fun showAlertDialogAdd() {
+    private fun inputNote(){
+        val addIntent = Intent(this, InputNoteActivity::class.java)
+        startActivity(addIntent)
+    }
+
+    private fun cariNote(menu: Menu?){
+        R.id.urut_note -> urutNote()
+
+        val searchView = item?.actionView as androidx.appcompat.widget.SearchView?
+        searchView?.isSubmitButtonEnabled = true
+
+        searchView?.setOnQueryTextListener(
+            object: androidx.appcompat.widget.SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    if(query != null){
+                        getItemsFromDb(query)
+                    }
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    if(newText != null){
+                        getItemsFromDb(newText)
+                    }
+                    return true
+                }
+            }
+        )
+    }
+
+    private fun getItemsFromDb(searchText: String){
+        var searchText = searchText
+        searchText = "%$searchText%"
+
+        noteViewModel.cariHasil(searchText)?.observe(this, Observer {
+            noteAdapter.setNotes(it)
+        })
+    }
+
+    private fun urutNote(){
+        val items = arrayOf("Tenggat Waktu", "Waktu Buat")
+
+        val builder = AlertDialog.Builder(this)
         val alert = AlertDialog.Builder(this)
-
-        val editText = EditText(applicationContext)
-        editText.hint = "Enter your text"
-
-        alert.setTitle("New Note")
-        alert.setView(editText)
-
-        alert.setPositiveButton("Save") { dialog, _ ->
-            noteViewModel.insertNote(
-                Note(note = editText.text.toString())
-            )
-            dialog.dismiss()
-        }
-
-        alert.setNegativeButton("Cancel") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        alert.show()
+        builder.setTitle("Urutkan berdasarkan : ")
+            .setItems(items){dialog, which ->
+                when(which){
+                    0 -> {
+                        alert.setTitle(items[which])
+                            .setPositiveButton("Menaik"){dialog, _ ->
+                                noteViewModel.getNotes()?.observe(this, Observer {
+                                    noteAdapter.setNotes(it)
+                                })
+                                dialog.dismiss()
+                            }
+                            .setNegativeButton("Menurun"){dialog, _ ->
+                                noteViewModel.urutbyTenggatWaktuMenurun()?.observe(this, Observer {
+                                    noteAdapter.setNotes(it)
+                                })
+                                dialog.dismiss()
+                            }
+                            .show()
+                    }
+                    1 -> {
+                        alert.setTitle(items[which])
+                            .setPositiveButton("Menaik"){dialog, _ ->
+                                noteViewModel.urutbyBuatWaktuMenaik()?.observe(this, Observer {
+                                    noteAdapter.setNotes(it)
+                                })
+                                dialog.dismiss()
+                            }
+                            .setNegativeButton("Menurun"){dialog, _ ->
+                                noteViewModel.urutbyTenggatWaktuMenurun()?.observe(this, Observer {
+                                    noteAdapter.setNotes(it)
+                                })
+                                dialog.dismiss()
+                            }
+                            .show()
+                    }
+                }
+            }
+        builder.show()
     }
 
     private fun showAlertMenu(note: Note) {
-        val items = arrayOf("Edit", "Delete")
+        val items = arrayOf("Info", "Edit", "Hapus")
 
-        val builder =
-            AlertDialog.Builder(this)
-        builder.setItems(items) { dialog, which ->
+        val builder = AlertDialog.Builder(this)
+        val alert = AlertDialog.Builder(this)
+        builder.setItems(items){ dialog, which ->
             // the user clicked on colors[which]
             when (which) {
                 0 -> {
-                    showAlertDialogEdit(note)
+                    listDetails(alert, note)
                 }
                 1 -> {
-                    noteViewModel.deleteNote(note)
+                    updateNote(note)
+                }
+                2 -> {
+                    alert.setTitle("Hapus note ?")
+                        .setMessage("Yakin?")
+                        .setPositiveButton("Ya"){dialog, _ ->
+                            noteViewModel.hapusNote(note)
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton("Tidak"){dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
                 }
             }
         }
         builder.show()
     }
 
-    private fun showAlertDialogEdit(note: Note) {
-        val alert = AlertDialog.Builder(this)
+    private fun listDetails(alert: AlertDialog.Builder, note: Note){
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.item_details, null)
 
-        val editText = EditText(applicationContext)
-        editText.setText(note.note)
+        val judul: TextView = dialogView.findViewById(R.id.judul)
+        val buatWaktu: TextView = dialogView.findViewById(R.id.buat_waktu_content)
+        val tenggatJam: TextView = dialogView.findViewById(R.id.tenggat_jam_content)
+        val additionalNote: TextView = dialogView.findViewById(R.id.note_content)
 
-        alert.setTitle("Edit Note")
-        alert.setView(editText)
+        judul.text = note.judul
+        buatWaktu.text = note.strBuatWaktu
+        tenggatJam.text = "${note.strTenggatWaktu}, ${note.strTenggatJam}"
+        additionalNote.text = note.note
 
-        alert.setPositiveButton("Update") { dialog, _ ->
-            note.note = editText.text.toString()
-            noteViewModel.updateNote(note)
-            dialog.dismiss()
-        }
+        alert.setView(dialogView)
+            .setNeutralButton("OK"){dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
 
-        alert.setNegativeButton("Cancel") { dialog, _ ->
-            dialog.dismiss()
-        }
+    private fun updateNote(note: Note){
+        val addIntent = Intent(this, UpdateNoteActivity::class.java)
+            .putExtra("EXTRA_LIST", note)
+            .putExtra(UpdateNoteActivity.EXTRA_JUDUL_UPDATE, note.judul)
+            .putExtra(UpdateNoteActivity.EXTRA_WAKTU_UPDATE, note.strTenggatWaktu)
+            .putExtra(UpdateNoteActivity.EXTRA_JAM_UPDATE, note.strTenggatJam)
+            .putExtra(UpdateNoteActivity.EXTRA_NOTE_UPDATE, note.note)
+            .putExtra(UpdateNoteActivity.EXTRA_IS_FINISHED_UPDATE, note.isFinished)
 
-        alert.show()
+        startActivity(addIntent)
     }
 }

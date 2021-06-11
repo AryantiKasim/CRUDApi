@@ -5,4 +5,11 @@
     <item name="tenggat_waktu_konten" type="id" />
     <item name="tenggat_jam_konten" type="id" />
     <item name="note_konten" type="id" />
+    <item name="fab" type="id" />
+    <item name="search_list" type="id" />
+    <item name="created_date_content" type="id" />
+    <item name="due_time_content" type="id" />
+    <item name="judul" type="id">Judul</item>
+    <item name="urut_note" type="id" />
+    <item name="buat_waktu_content" type="id" />
 </resources>

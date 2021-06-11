@@ -10,7 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CRUDToDoList">
         <activity android:name="id.ac.unhas.crudtodolist.db.ui.main.UpdateNoteActivity" />
-        <activity android:name="id.ac.unhas.crudtodolist.InputNoteActivity" />
+        <activity android:name="id.ac.unhas.crudtodolist.db.ui.main.InputNoteActivity" />
+        <!--        <activity android:name=".NoteActivity" />-->
+        <!--        <activity android:name=".note" />	        <activity android:name=".note" />-->
+        <!--        <activity android:name=".main_menu" />	        <activity android:name=".main_menu" />-->
         <activity android:name="id.ac.unhas.crudtodolist.db.ui.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
