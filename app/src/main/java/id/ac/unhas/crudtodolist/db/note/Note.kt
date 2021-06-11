@@ -1,5 +1,6 @@
 package id.ac.unhas.crudtodolist.db.note
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -40,4 +41,4 @@ data class Note(
     @ColumnInfo(name = "selesai")
     var isFinished: Boolean? = null
 
-)
+) : Parcelable
